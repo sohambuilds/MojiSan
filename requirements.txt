@@ -8,3 +8,4 @@ requests
 rembg
 Flask
 python-dotenv
+onnxruntime
