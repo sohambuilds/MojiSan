@@ -1,0 +1,10 @@
+diffusers
+transformers
+torch
+accelerate
+safetensors
+Pillow
+requests
+rembg
+Flask
+python-dotenv
