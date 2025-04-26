@@ -57,13 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     faceSection.classList.toggle("active", mode === "face_style");
 
-    // Hide face preview and file name if not in face_style mode
-    if (mode !== "face_style") {
-      faceImagePreview.style.display = "none";
-      fileNameDisplay.textContent = "No file chosen";
-      faceImageUpload.value = "";
-    }
-
     resetOutput();
   }
 
@@ -243,5 +236,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // === Initialize ===
   resetOutput(); // Set initial output state
   // Set initial visibility based on default checked radio
-  handleTabChange(document.querySelector(".tab-btn.active") || tabButtons[0]);
+  handleTabChange(document.querySelector(".tab-btn.active"));
 });
