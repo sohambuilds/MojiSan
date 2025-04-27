@@ -21,6 +21,23 @@ loaded_models = {
     "image_encoder": None,
 }
 
+def move_pipeline_to_device(pipe, device):
+    if pipe is not None:
+        pipe.to(device)
+        if hasattr(pipe, "components") and "image_encoder" in pipe.components:
+            pipe.components["image_encoder"].to(device)
+
+def ensure_only_one_on_gpu(target_key):
+    """Moves all pipelines to CPU except the one specified by target_key (which is moved to GPU)."""
+    for key, pipe in loaded_models.items():
+        if pipe is not None:
+            if key == target_key:
+                move_pipeline_to_device(pipe, DEVICE)
+            else:
+                move_pipeline_to_device(pipe, "cpu")
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
 def load_image_encoder():
     """Loads the CLIP Vision Image Encoder."""
     if loaded_models["image_encoder"] is None:
@@ -90,7 +107,6 @@ def load_face_style_pipeline():
             raise e
     return loaded_models["face_style_pipe"]
 
-
 def load_text_style_pipeline():
     """Loads the pipeline with a single IP-Adapter (Plus) for style."""
     if loaded_models["text_style_pipe"] is None:
@@ -122,8 +138,25 @@ def load_text_style_pipeline():
             raise e
     return loaded_models["text_style_pipe"]
 
+def get_pipeline_for_mode(mode):
+    """Returns the pipeline for the given mode, ensuring only it is on GPU."""
+    if mode == "text":
+        pipe = load_text_emoji_pipeline()
+        ensure_only_one_on_gpu("text_pipe")
+        return pipe
+    elif mode == "face_style":
+        pipe = load_face_style_pipeline()
+        ensure_only_one_on_gpu("face_style_pipe")
+        return pipe
+    elif mode == "text_style":
+        pipe = load_text_style_pipeline()
+        ensure_only_one_on_gpu("text_style_pipe")
+        return pipe
+    else:
+        return None
+
 def get_pipelines():
-    """Loads and returns all pipelines."""
+    """(Legacy) Loads all pipelines (not recommended for low VRAM)."""
     load_text_emoji_pipeline()
     load_face_style_pipeline()
     load_text_style_pipeline()

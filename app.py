@@ -5,7 +5,7 @@ import random
 from flask import Flask, render_template, request, jsonify
 from PIL import Image
 import diffusers
-from utils.model_loader import get_pipelines, cleanup_models 
+from utils.model_loader import get_pipeline_for_mode, cleanup_models 
 from utils.image_utils import remove_background, load_style_images, load_image_from_path 
 from utils.config import STYLE_LIBRARIES, NUM_STYLE_IMAGES_PER_LIBRARY
 from generators.text_emoji import generate_text_emoji
@@ -14,21 +14,6 @@ from generators.text_style_emoji import generate_text_style_emoji
 
 
 app = Flask(__name__)
-
-# --- Load Models on Startup ---
-
-pipelines = None
-try:
-    print("Loading AI models... This may take a moment.")
-    pipelines = get_pipelines() 
-    if not all(pipelines.values()):
-        raise RuntimeError("One or more pipelines failed to load.")
-    print("All models loaded successfully.")
-except Exception as e:
-    print(f"FATAL: Error loading models: {e}")
-   
-    pipelines = None 
-
 
 # --- Routes ---
 
@@ -42,9 +27,6 @@ def index():
 @app.route('/api/generate', methods=['POST'])
 def api_generate():
     """API endpoint to handle emoji generation requests."""
-    if pipelines is None or not all(pipelines.values()):
-         return jsonify({"error": "Models are not available. Server initialization failed."}), 503 # Service Unavailable
-
     # --- Get Data from Request ---
     try:
         mode = request.form.get('mode', 'text')
@@ -69,9 +51,11 @@ def api_generate():
         print(f"  Using Seed: {seed}")
 
         # --- Mode-Specific Logic ---
+        pipeline_to_use = get_pipeline_for_mode(mode)
+        if not pipeline_to_use:
+            return jsonify({"error": f"{mode.capitalize()} generation model not loaded."}), 500
+
         if mode == 'text':
-            pipeline_to_use = pipelines.get('text')
-            if not pipeline_to_use: return jsonify({"error": "Text generation model not loaded."}), 500
             generated_image = generate_text_emoji(
                 pipe=pipeline_to_use,
                 prompt=prompt,
@@ -80,8 +64,6 @@ def api_generate():
             )
 
         elif mode == 'text_style':
-            pipeline_to_use = pipelines.get('text_style')
-            if not pipeline_to_use: return jsonify({"error": "Text+Style generation model not loaded."}), 500
             if not style_name or style_name not in STYLE_LIBRARIES:
                 return jsonify({"error": f"Invalid style selected: {style_name}"}), 400
 
@@ -99,8 +81,6 @@ def api_generate():
             )
 
         elif mode == 'face_style':
-            pipeline_to_use = pipelines.get('face_style')
-            if not pipeline_to_use: return jsonify({"error": "Face+Style generation model not loaded."}), 500
             if not face_image_file:
                 return jsonify({"error": "Face image is required for Face+Style mode."}), 400
             if not style_name or style_name not in STYLE_LIBRARIES:
@@ -163,5 +143,5 @@ def api_generate():
 if __name__ == '__main__':
     
   
-    app.run(debug=True, host='0.0.0.0', port=5000) 
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
