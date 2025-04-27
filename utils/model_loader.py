@@ -24,8 +24,11 @@ loaded_models = {
 def move_pipeline_to_device(pipe, device):
     if pipe is not None:
         pipe.to(device)
+        # Only move image_encoder if it exists and is not None
         if hasattr(pipe, "components") and "image_encoder" in pipe.components:
-            pipe.components["image_encoder"].to(device)
+            image_encoder = pipe.components["image_encoder"]
+            if image_encoder is not None:
+                image_encoder.to(device)
 
 def ensure_only_one_on_gpu(target_key):
     """Moves all pipelines to CPU except the one specified by target_key (which is moved to GPU)."""
