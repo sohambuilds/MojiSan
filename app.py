@@ -56,9 +56,15 @@ def api_generate():
             return jsonify({"error": f"{mode.capitalize()} generation model not loaded."}), 500
 
         if mode == 'text':
+            # Add emoji style suffix to prompt
+            emoji_style_suffix = (
+                "Apple Emoji Style, Plain Matte White background, centered, minimal, no text, "
+                "no watermark, no border, high contrast, simple, clean, isolated, icon, 3D, soft shadow"
+            )
+            full_prompt = f"{prompt.strip()}, {emoji_style_suffix}"
             generated_image = generate_text_emoji(
                 pipe=pipeline_to_use,
-                prompt=prompt,
+                prompt=full_prompt,
                 negative_prompt=negative_prompt,
                 seed=seed
             )
