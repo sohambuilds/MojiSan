@@ -49,8 +49,8 @@ def generate_face_style_emoji(
         return None
 
     # Ensure all images are processed and moved to the pipeline's device
-    style_tensors = [pipe.image_processor(image).to(device) for image in style_images]
-    face_tensor = pipe.image_processor(face_image).to(device)
+    style_tensors = [pipe.image_processor.preprocess(image).to(device) for image in style_images]
+    face_tensor = pipe.image_processor.preprocess(face_image).to(device)
 
     ip_adapter_inputs = [face_tensor] + style_tensors
 
