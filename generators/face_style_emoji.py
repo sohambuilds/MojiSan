@@ -24,7 +24,7 @@ def generate_face_style_emoji(
     seed: int | None = None
 ) -> Image.Image | None:
     """Generates a personalized emoji using face image, style images, and text prompt."""
-
+    pipe=pipe.to(DEVICE)
     if pipe is None:
         print("Error: Face+Style pipeline is not loaded.")
         return None
