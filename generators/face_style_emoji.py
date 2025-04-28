@@ -38,8 +38,8 @@ def generate_face_style_emoji(
     # Get the device directly from the pipeline
     device = pipe.device
 
-    # Use "cpu" for generator to match diffusers' convention
-    generator = torch.Generator(device="cpu").manual_seed(seed) if seed is not None else None
+    # Use the pipeline's device for the generator
+    generator = torch.Generator(device=device).manual_seed(seed) if seed is not None else None
 
     adapter_scales = [face_scale] + [style_scale] * len(style_images)
     try:
