@@ -17,7 +17,7 @@ def generate_face_style_emoji(
     face_image: Image.Image,
     style_images: List[Image.Image],
     prompt: str,
-    negative_prompt: str | None = None, # Allow None from caller
+    negative_prompt: str | None = None,  # Allow None from caller
     style_scale: float = DEFAULT_STYLE_SCALE,
     face_scale: float = DEFAULT_FACE_SCALE,
     num_inference_steps: int = DEFAULT_STEPS,
@@ -35,21 +35,20 @@ def generate_face_style_emoji(
     prompt = prompt if prompt else "emoji in a highly stylized artistic manner"
     final_negative_prompt = negative_prompt if negative_prompt is not None else DEFAULT_STYLE_NEGATIVE_PROMPT
 
-    # Get the device from the pipeline for consistency
-    device = next(iter(pipe.parameters())).device
+    # Get the device directly from the pipeline
+    device = pipe.device
 
-    generator = None
-    if seed is not None:
-        generator = torch.Generator(device=device.type).manual_seed(seed)
+    # Use "cpu" for generator to match diffusers' convention
+    generator = torch.Generator(device="cpu").manual_seed(seed) if seed is not None else None
 
     adapter_scales = [face_scale] + [style_scale] * len(style_images)
     try:
         print(f"Set IP-Adapter scales: Style={style_scale}, Face={face_scale}")
     except ValueError as e:
-         print(f"Error setting IP adapter scale (check number of loaded adapters): {e}")
-         return None
+        print(f"Error setting IP adapter scale (check number of loaded adapters): {e}")
+        return None
 
-    # Ensure all style images are on the same device as the pipeline
+    # Ensure all images are processed and moved to the pipeline's device
     style_tensors = [pipe.image_processor(image).to(device) for image in style_images]
     face_tensor = pipe.image_processor(face_image).to(device)
 
