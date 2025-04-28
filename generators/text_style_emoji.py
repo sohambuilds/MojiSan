@@ -52,6 +52,7 @@ def generate_text_style_emoji(
             prompt=prompt,
             negative_prompt=final_negative_prompt,
             ip_adapter_image=ip_adapter_inputs,
+            ip_adapter_scale=style_scale,
             num_inference_steps=num_inference_steps,
             guidance_scale=guidance_scale,
             generator=generator

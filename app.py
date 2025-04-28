@@ -34,6 +34,10 @@ def api_generate():
         negative_prompt = request.form.get('negative_prompt', None) # Use None if empty
         style_name = request.form.get('style', list(STYLE_LIBRARIES.keys())[0] if STYLE_LIBRARIES else None)
         face_image_file = request.files.get('face_image', None)
+        # NEW: Get slider values
+        guidance_scale = float(request.form.get('guidance_scale', 5.0))
+        style_scale = float(request.form.get('style_scale', 0.4))
+        face_scale = float(request.form.get('face_scale', 0.7))
 
         print(f"\nReceived generation request:")
         print(f"  Mode: {mode}")
@@ -41,6 +45,9 @@ def api_generate():
         print(f"  Negative Prompt: '{negative_prompt}'")
         print(f"  Style Name: {style_name}")
         print(f"  Face Image Provided: {'Yes' if face_image_file else 'No'}")
+        print(f"  Guidance Scale: {guidance_scale}")
+        print(f"  Style Scale: {style_scale}")
+        print(f"  Face Scale: {face_scale}")
 
         # --- Input Validation ---
         if not prompt:
@@ -66,6 +73,7 @@ def api_generate():
                 pipe=pipeline_to_use,
                 prompt=full_prompt,
                 negative_prompt=negative_prompt,
+                guidance_scale=guidance_scale,
                 seed=seed
             )
 
@@ -83,6 +91,8 @@ def api_generate():
                 style_images=style_images,
                 prompt=prompt,
                 negative_prompt=negative_prompt,
+                style_scale=style_scale,
+                guidance_scale=guidance_scale,
                 seed=seed
             )
 
@@ -111,6 +121,9 @@ def api_generate():
                 style_images=style_images,
                 prompt=prompt,
                 negative_prompt=negative_prompt,
+                style_scale=style_scale,
+                face_scale=face_scale,
+                guidance_scale=guidance_scale,
                 seed=seed
             )
 

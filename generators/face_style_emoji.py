@@ -21,6 +21,7 @@ def generate_face_style_emoji(
     style_scale: float = DEFAULT_STYLE_SCALE,
     face_scale: float = DEFAULT_FACE_SCALE,
     num_inference_steps: int = DEFAULT_STEPS,
+    guidance_scale: float = DEFAULT_GUIDANCE_SCALE,
     seed: int | None = None
 ) -> Image.Image | None:
     """Generates a personalized emoji using face image, style images, and text prompt."""
@@ -51,7 +52,7 @@ def generate_face_style_emoji(
             ip_adapter_image=ip_adapter_inputs,
             ip_adapter_scale=adapter_scales,
             num_inference_steps=num_inference_steps,
-            guidance_scale=DEFAULT_GUIDANCE_SCALE,
+            guidance_scale=guidance_scale,
             generator=generator
         ).images[0]
         print("Face+style emoji generation complete.")

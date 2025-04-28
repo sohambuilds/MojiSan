@@ -4,11 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MojiSan</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
-<link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-/>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
   </head>
   <body>
     <div class="app-container">
@@ -127,6 +130,62 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- SLIDER CONTROLS START -->
+                <div id="slider-section">
+                  <!-- Guidance Scale (all modes) -->
+                  <div
+                    class="form-group slider-group"
+                    id="guidance-scale-group"
+                  >
+                    <label for="guidance-scale">
+                      <i class="fas fa-sliders-h"></i>
+                      Guidance Scale: <span id="guidance-scale-value">5.0</span>
+                    </label>
+                    <input
+                      type="range"
+                      id="guidance-scale"
+                      name="guidance_scale"
+                      min="2"
+                      max="12"
+                      step="0.01"
+                      value="5.0"
+                    />
+                  </div>
+                  <!-- Style Scale (text+style, face+style) -->
+                  <div class="form-group slider-group" id="style-scale-group">
+                    <label for="style-scale">
+                      <i class="fas fa-paint-brush"></i>
+                      Style Scale: <span id="style-scale-value">0.4</span>
+                    </label>
+                    <input
+                      type="range"
+                      id="style-scale"
+                      name="style_scale"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value="0.4"
+                    />
+                  </div>
+                  <!-- Face Scale (face+style only) -->
+                  <div class="form-group slider-group" id="face-scale-group">
+                    <label for="face-scale">
+                      <i class="fas fa-user"></i>
+                      Face Scale: <span id="face-scale-value">0.7</span>
+                    </label>
+                    <input
+                      type="range"
+                      id="face-scale"
+                      name="face_scale"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value="0.7"
+                    />
+                  </div>
+                </div>
+                <!-- SLIDER CONTROLS END -->
               </div>
             </div>
 
@@ -188,5 +247,59 @@
       </footer>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+      // filepath: c:\Users\Soham R\Documents\25\MITAIHacka\emoji_generator\templates\index.html (inline JS)
+      // --- Slider visibility logic ---
+      function updateSliderVisibility(mode) {
+        document.getElementById("guidance-scale-group").style.display = "block";
+        document.getElementById("style-scale-group").style.display =
+          mode === "text_style" || mode === "face_style" ? "block" : "none";
+        document.getElementById("face-scale-group").style.display =
+          mode === "face_style" ? "block" : "none";
+      }
+      function updateSliderLabels() {
+        document.getElementById("guidance-scale-value").textContent =
+          document.getElementById("guidance-scale").value;
+        document.getElementById("style-scale-value").textContent =
+          document.getElementById("style-scale").value;
+        document.getElementById("face-scale-value").textContent =
+          document.getElementById("face-scale").value;
+      }
+      document
+        .getElementById("guidance-scale")
+        .addEventListener("input", updateSliderLabels);
+      document
+        .getElementById("style-scale")
+        .addEventListener("input", updateSliderLabels);
+      document
+        .getElementById("face-scale")
+        .addEventListener("input", updateSliderLabels);
+      // Tab switching logic (ensure this runs after DOMContentLoaded)
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          const mode = this.getAttribute("data-mode");
+          document.getElementById("mode-input").value = mode;
+          updateSliderVisibility(mode);
+        });
+      });
+      // Initial state
+      updateSliderVisibility(document.getElementById("mode-input").value);
+      updateSliderLabels();
+      // --- Attach slider values to form submission ---
+      document
+        .getElementById("generator-form")
+        .addEventListener("submit", function (e) {
+          // No-op: handled by JS elsewhere
+        });
+      document
+        .getElementById("generate-btn")
+        .addEventListener("click", function () {
+          // Attach slider values to form data before sending (handled in script.js)
+        });
+    </script>
   </body>
 </html>

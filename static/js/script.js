@@ -107,7 +107,20 @@ document.addEventListener("DOMContentLoaded", () => {
     setLoading(true);
     resetOutput();
 
-    const formData = new FormData();
+    const formData = new FormData(form);
+
+    // Add slider values
+    formData.set(
+      "guidance_scale",
+      document.getElementById("guidance-scale").value
+    );
+    if (document.getElementById("style-scale-group").style.display !== "none") {
+      formData.set("style_scale", document.getElementById("style-scale").value);
+    }
+    if (document.getElementById("face-scale-group").style.display !== "none") {
+      formData.set("face_scale", document.getElementById("face-scale").value);
+    }
+
     formData.append("mode", mode);
     formData.append("prompt", prompt);
     if (negativePrompt) {
