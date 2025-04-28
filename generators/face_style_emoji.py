@@ -24,7 +24,7 @@ def generate_face_style_emoji(
     seed: int | None = None
 ) -> Image.Image | None:
     """Generates a personalized emoji using face image, style images, and text prompt."""
-    pipe=pipe.to(DEVICE)
+    pipe = pipe.to(DEVICE)
     if pipe is None:
         print("Error: Face+Style pipeline is not loaded.")
         return None
@@ -35,25 +35,14 @@ def generate_face_style_emoji(
     prompt = prompt if prompt else "emoji in a highly stylized artistic manner"
     final_negative_prompt = negative_prompt if negative_prompt is not None else DEFAULT_STYLE_NEGATIVE_PROMPT
 
-    # Get the device directly from the pipeline
     device = pipe.device
-
-    # Use the pipeline's device for the generator
     generator = torch.Generator(device=device).manual_seed(seed) if seed is not None else None
 
-    adapter_scales = [face_scale] + [style_scale] * len(style_images)
-    try:
-        print(f"Set IP-Adapter scales: Style={style_scale}, Face={face_scale}")
-    except ValueError as e:
-        print(f"Error setting IP adapter scale (check number of loaded adapters): {e}")
-        return None
+    # According to diffusers docs, pass [style_images, face_image] (list of images, not tensors)
+    ip_adapter_inputs = [style_images, face_image]
+    adapter_scales = [style_scale, face_scale]
 
-    # Ensure all images are processed and moved to the pipeline's device
-    style_tensors = [pipe.image_processor.preprocess(image).to(device) for image in style_images]
-    face_tensor = pipe.image_processor.preprocess(face_image).to(device)
-
-    ip_adapter_inputs = [face_tensor] + style_tensors
-
+    print(f"Set IP-Adapter scales: Style={style_scale}, Face={face_scale}")
     print(f"Generating face+style emoji with prompt: '{prompt}'")
     try:
         image = pipe(
