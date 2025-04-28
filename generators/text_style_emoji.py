@@ -25,6 +25,8 @@ def generate_text_style_emoji(
     if pipe is None:
         print("Error: Text+Style pipeline is not loaded.")
         return None
+    
+    pipe = pipe.to(DEVICE)
     if not style_images:
         print("Error: Missing style images.")
         return None
