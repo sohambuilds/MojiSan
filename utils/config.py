@@ -40,6 +40,9 @@ DEFAULT_FACE_SCALE = 0.7 #CHANGE
 
 STYLE_LIBRARIES = {
     "ziggy": "static/styles/ziggy",
-    "van_gogh": "static/styles/van_gogh", 
+    "van_gogh": "static/styles/van_gogh",
+    "pixel_art": "static/styles/pixel_art",
+    "claymation": "static/styles/claymation",
+    "sticker_art": "static/styles/sticker_art",
 }
 NUM_STYLE_IMAGES_PER_LIBRARY = 10
